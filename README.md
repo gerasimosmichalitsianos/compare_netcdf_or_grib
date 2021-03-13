@@ -44,12 +44,12 @@
     
     Matplotlib will be used in future versions of the code for making plots.
 
-###### ADDITIONAL COMMAND-LINE OPTIONS
+###### ALL COMMAND-LINE OPTIONS
 
-    --version,  -v  : display version info.
-    --usage,    -h  : display this usage messsage
-    --netcdf1,  -n1 : pass in name of 1-band Geotiff holding 1-band panchromatic Geotiff image (high resolution, required)
-    --netcddf2, -n2 : pass in name of 3 or 4 band multispectral Geotiff image file (low-resolution, required)
+    --version, -v  : display version info.
+    --usage,   -h  : display this usage messsage
+    --netcdf1, -n1 : pass in name of 1-band Geotiff holding 1-band panchromatic Geotiff image (high resolution, required)
+    --netcdf2, -n2 : pass in name of 3 or 4 band multispectral Geotiff image file (low-resolution, required)
       
 ###### PYTHON VERSION:
      
