@@ -47,7 +47,11 @@
       --netcdf2 $DIR/20210312150000-STAR-L2P_GHRSST-SSTsubskin-AHI_H08-ACSPO_V2.70-v02.0-fv01.0.nc
 
     Note that when using the Python script directory, you will need to have the following Python3
-    modules installed: (1) netCDF4 (2) NumPy (3) Matplotlib.
+    modules installed: 
+    
+      (1) netCDF4 
+      (2) NumPy 
+      (3) Matplotlib
     
     Matplotlib will be used in future versions of the code for making plots.
 
