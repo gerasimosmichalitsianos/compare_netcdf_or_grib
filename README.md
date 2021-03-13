@@ -19,7 +19,8 @@
 ###### INSTALLATION:
 
     To use this software, it is expected you will have docker (https://www.docker.com)
-    installed.
+    and git (https://git-scm.com/) installed. If not, you may download the code from
+    this repository directly as a .zip. To use git and docker, try these commands:
 
     $ git clone https://github.com/gerasimosmichalitsianos/compare_netcdf
     $ cd compare_netcdf/
