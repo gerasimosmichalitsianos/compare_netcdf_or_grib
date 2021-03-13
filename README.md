@@ -44,11 +44,12 @@
     
     Matplotlib will be used in future versions of the code for making plots.
 
-    Additonal Command-line Options: 
-      --version,  -v  : display version info.
-      --usage,    -h  : display this usage messsage
-      --netcdf1,  -n1 : pass in name of 1-band Geotiff holding 1-band panchromatic Geotiff image (high resolution, required)
-      --netcddf2, -n2 : pass in name of 3 or 4 band multispectral Geotiff image file (low-resolution, required)
+###### ADDITIONAL COMMAND-LINE OPTIONS
+
+    --version,  -v  : display version info.
+    --usage,    -h  : display this usage messsage
+    --netcdf1,  -n1 : pass in name of 1-band Geotiff holding 1-band panchromatic Geotiff image (high resolution, required)
+    --netcddf2, -n2 : pass in name of 3 or 4 band multispectral Geotiff image file (low-resolution, required)
       
 ###### PYTHON VERSION:
      
@@ -59,9 +60,8 @@
     Running comparison at: 
       2021-03-13-07:47:42
  
-    netcdf file 1: /home/gmichali/data//20210312150000-STAR-L2P_GHRSST-SSTsubskin-AHI_H08-ACSPO_V2.71-v02.0-fv01.0.nc
-    netcdf file 2: /home/gmichali/data//20210312150000-STAR-L2P_GHRSST-SSTsubskin-AHI_H08-ACSPO_V2.70-v02.0-fv01.0.nc
- 
+    netcdf file 1: /home/gmichali/data/20210312150000-STAR-L2P_GHRSST-SSTsubskin-AHI_H08-ACSPO_V2.71-v02.0-fv01.0.nc
+    netcdf file 2: /home/gmichali/data/20210312150000-STAR-L2P_GHRSST-SSTsubskin-AHI_H08-ACSPO_V2.70-v02.0-fv01.0.nc
    
     ----------------------------------------------------------------------------- 
 
@@ -86,6 +86,7 @@
       Difference Mean,Min.,Max.,St. dev : 813.1033, 0.0, 10297.26, 2776.1316
       
 ###### @author: 
+
     Gerasimos Michalitsianos
     gerasimosmichalitsianos@gmail.com
     13 March 2021
