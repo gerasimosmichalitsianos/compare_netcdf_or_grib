@@ -7,8 +7,14 @@
     variable, an array of differences is computed (e.g. the absolute value
     of the first array minus the second array), and the same statistics 
     are computed and written to the console. Variables that do not have
-    the same dimensions are skipped, and only variable keys that exist 
+    the same x,y NetCDF dimensions are skipped, and only variable keys that exist 
     in BOTH NetCDF4 files, passed-in via command-line, are considered.
+    
+    Note that when the number of elements is displayed for each array,
+    however, that these may be diff between the two NetCDFs for that
+    variable. This is because the number of NoData (fill values) may
+    differ between the two files for that variable. So the number of valid
+    pixel values (grid points) USED to compute the statistics may differ.
    
 ###### INSTALLATION:
 
