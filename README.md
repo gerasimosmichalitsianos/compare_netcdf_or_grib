@@ -3,18 +3,25 @@
     This is a simple Python3 command-line program that iterates through
     the matchines variables of two NetCDF4 files, and computes some 
     basic statistics (mean, min., max., and standard deviation), writing
-    those statistics to the console (e.g. UNIX/Linux terminal). For each
-    variable, an array of differences is computed (e.g. the absolute value
-    of the first array minus the second array), and the same statistics 
-    are computed and written to the console. Variables that do not have
-    the same x,y NetCDF dimensions are skipped, and only variable keys that exist 
-    in BOTH NetCDF4 files, passed-in via command-line, are considered.
+    those statistics to a text file. For each variable, an array of differences 
+    is computed (e.g. the absolute value of the first array minus the second array), 
+    and the same statistics are computed and written to the output text file. 
+    Variables that do not have the same x,y NetCDF dimensions are skipped, and 
+    only variable keys that exist in BOTH NetCDF4 files, passed-in via command-line, 
+    are considered.
     
     Note that when the number of elements is displayed for each array,
     however, that these may be differ between the two NetCDFs for that
     variable. This is because the number of NoData (fill values) may
     differ between the two files for that variable. So the number of valid
     pixel values (grid points) USED to compute the statistics may differ.
+    
+    So the statistics for some variable may differ, because the number of 
+    its "NoData" (fill) values differ; these are set to -9999.0 in the script.
+    
+    The --outdir (or -o) flag is required in which the text file is written to.
+    The --plot (-p) flag is optional to create output plots. These PNG plots, 
+    if created, also go to the output directory specified by --outdir (or -o flag).
    
 ###### INSTALLATION:
 
@@ -39,12 +46,16 @@
     $ docker run -v $DIR:$DIR compare_netcdf 
       --netcdf1 $DIR/20210312150000-STAR-L2P_GHRSST-SSTsubskin-AHI_H08-ACSPO_V2.71-v02.0-fv01.0.nc 
       --netcdf2 $DIR/20210312150000-STAR-L2P_GHRSST-SSTsubskin-AHI_H08-ACSPO_V2.70-v02.0-fv01.0.nc
+      --outdir $DIR --plot
 
     The second way is to use the Python source file directly (bin/compare_netcdf.py):
     
     $ python3 compare_netcdf.py
       --netcdf1 $DIR/20210312150000-STAR-L2P_GHRSST-SSTsubskin-AHI_H08-ACSPO_V2.71-v02.0-fv01.0.nc 
       --netcdf2 $DIR/20210312150000-STAR-L2P_GHRSST-SSTsubskin-AHI_H08-ACSPO_V2.70-v02.0-fv01.0.nc
+      --outdir $DIR
+      
+    Remember the --plot (-p) is optional for PNG creation.
 
     Note that when using the Python script directory, you will need to have the following Python3
     modules installed: 
@@ -53,7 +64,7 @@
       (2) NumPy 
       (3) Matplotlib
     
-    Matplotlib will be used in future versions of the code for making plots.
+    Matplotlib is used here to create the plots.
 
 ###### ALL COMMAND-LINE OPTIONS
 
@@ -61,12 +72,14 @@
     --usage,   -h  : display this usage messsage
     --netcdf1, -n1 : pass in name of 1-band Geotiff holding 1-band panchromatic Geotiff image (high resolution, required)
     --netcdf2, -n2 : pass in name of 3 or 4 band multispectral Geotiff image file (low-resolution, required)
+    --plot   , -p  : create output PNG plots for each variable (one plot for variable from first NetCDF1, one from second, then a plot differences)
+    --outdir , -o  : output directory (required!)
       
 ###### PYTHON VERSION:
      
-    Supports Python 3.x
+    Supports Python 2.7.x, 3.x
        
-###### Sample Console/Terminal Output
+###### Sample Output to Text File (in output directory)
 
     Running comparison at: 
       2021-03-13-07:47:42
@@ -100,4 +113,4 @@
 
     Gerasimos Michalitsianos
     gerasimosmichalitsianos@gmail.com
-    13 March 2021
+    11 April 2021
