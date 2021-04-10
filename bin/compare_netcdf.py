@@ -3,16 +3,23 @@ import sys
 import numpy as np
 import datetime
 import argparse
+import matplotlib
 import matplotlib.pyplot as plt
 from netCDF4 import Dataset
 from matplotlib.pylab import *
+matplotlib.rcParams['agg.path.chunksize'] = 1000000
 
 # -------------------------
 # turn off interactive mode
 # -------------------------
 ioff()
 
-def CompareNetcdfs( NetCDF1,NetCDF2 ):
+def CompareNetcdfs( NetCDF1,NetCDF2,ToPlot,OutDir ):
+
+  # ----------------------------------------------
+  # get output directory for plotting if necessary
+  # ----------------------------------------------
+  OutputDir = OutDir 
 
   # --------------------------------------
   # open up NetCDFs as new dataset objects
@@ -30,25 +37,35 @@ def CompareNetcdfs( NetCDF1,NetCDF2 ):
   VariablesNetCDF1.sort()
   VariablesNetCDF2.sort()
 
+  # --------------------------
+  # write out name of variable
+  # --------------------------
+  TimeStamp = datetime.datetime.now().strftime("%Y%m%d_%H%M%S")
+  OutNameStats = os.path.join( OutputDir, 'comparison_statistics_'+TimeStamp+'.txt')
+  if os.path.isfile( OutNameStats ):
+    os.remove( OutNameStats )
+  f=open( OutNameStats,'w')
+
   # -------------------------------------------
   # get common variables from both NetCDF files
   # -------------------------------------------
-
   StartDate = datetime.datetime.now().strftime('%Y-%m-%d-%H:%M:%S')
   CommonVariableKeys = list( set(VariablesNetCDF1).intersection(VariablesNetCDF2))
   if len( CommonVariableKeys )<1:
-    sys.stdout.write( ' \n No common variables keys between NetCDF files. Exiting ... \n ')
+    f.write( ' \n No common variables keys between NetCDF files. Exiting ... \n ')
     sys.exit(1)
 
   # open up text file for writing pixel statistics
-  sys.stdout.write('%s\n'%' ')
-  sys.stdout.write('%s\n'%'  Running comparison at: ')
-  sys.stdout.write('%s\n'%('    '+StartDate))
-  sys.stdout.write('%s\n'%' ')
-  sys.stdout.write('%s\n'%('  netcdf file 1: '+NetCDF1))
-  sys.stdout.write('%s\n'%('  netcdf file 2: '+NetCDF2))
-  sys.stdout.write('%s\n'%' ')
-  sys.stdout.write('%s\n'%'   \n  ----------------------------------------------------------------------------- \n')
+  f.write('%s\n'%' ')
+  f.write('%s\n'%'  Running comparison at: ')
+  f.write('%s\n'%('    '+StartDate))
+  f.write('%s\n'%' ')
+  f.write('%s\n'%('  netcdf file 1: '+NetCDF1))
+  f.write('%s\n'%('  netcdf file 2: '+NetCDF2))
+  f.write('%s\n'%' ')
+  
+  if ToPlot:
+    f.write(  '  *Note: comparison plots will be created in: '+OutputDir+'\n\n' )
 
   # set a nodata value 
   NoData = -9999.0
@@ -117,25 +134,43 @@ def CompareNetcdfs( NetCDF1,NetCDF2 ):
       for MissingValue in MissingValues2:
         NetCDF_array2[(NetCDF_array2==MissingValue)]=NoData
 
-    sys.stdout.write('%s\n'%('  '+str(VariableCounter)+'. '+Var1+'\n'))
-    sys.stdout.write('%s\n'%('    NetCDF1 Mean,Min.,Max.,St. dev    : '+str(
-        NetCDF_array1[(NetCDF_array1!=NoData)].mean())+', '+\
-                str(NetCDF_array1[(NetCDF_array1!=NoData)].min())+', '+\
-                str(NetCDF_array1[(NetCDF_array1!=NoData)].max())+', '+\
-                str(NetCDF_array1[(NetCDF_array1!=NoData)].std())))
-    sys.stdout.write('%s\n'%('    NetCDF2 Mean,Min.,Max.,St. dev    : '+str(
-        NetCDF_array2[(NetCDF_array2!=NoData)].mean())+', '+\
-                str(NetCDF_array2[(NetCDF_array2!=NoData)].min())+', '+\
-                str(NetCDF_array2[(NetCDF_array2!=NoData)].max())+', '+\
-                str(NetCDF_array2[(NetCDF_array2!=NoData)].std())))
-    sys.stdout.write('%s\n'%('    NetCDF1 number of elements        : '+\
-            str(NetCDF_array1[(NetCDF_array1!=NoData)].size)))
-    sys.stdout.write('%s\n'%('    NetCDF2 number of elements        : '+\
-            str(NetCDF_array2[(NetCDF_array2!=NoData)].size)))
+    # -----------------------------------------------
+    # get valid  pixel values (e.g. that are -9999.0)
+    # -----------------------------------------------
+    ValidPixels_array1 = NetCDF_array1[( NetCDF_array1!=NoData)]
+    ValidPixels_array2 = NetCDF_array2[( NetCDF_array2!=NoData)]
+    f.write('%s\n'%('  '+str(VariableCounter)+'. '+Var1+'\n'))
+
+    if( ValidPixels_array1.size>0 ):
+      f.write( '    '+NetCDF1+' ('+Var1+') '+'\n' ) 
+      f.write( '%s\n'%( '      Mean      : '+str(ValidPixels_array1.mean())))
+      f.write( '%s\n'%( '      Min,      : '+str(ValidPixels_array1.min())))
+      f.write( '%s\n'%( '      Max.      : '+str(ValidPixels_array1.max())))
+      f.write( '%s\n'%( '      Std. Dev. : '+str(ValidPixels_array1.std())))
+    else:
+      f.write( '%s\n'%( '      Mean      : '+' (no valid pixels, all filler or NoData) '))
+      f.write( '%s\n'%( '      Min,      : '+' (no valid pixels, all filler or NoData) '))
+      f.write( '%s\n'%( '      Max.      : '+' (no valid pixels, all filler or NoData) '))
+      f.write( '%s\n'%( '      Std. Dev. : '+' (no valid pixels, all filler or NoData) '))
+
+    if( ValidPixels_array2.size>0 ):
+      f.write( '    '+NetCDF2+' ('+Var2+') '+'\n' ) 
+      f.write( '%s\n'%( '      Mean      : '+str(ValidPixels_array2.mean())))
+      f.write( '%s\n'%( '      Min,      : '+str(ValidPixels_array2.min())))
+      f.write( '%s\n'%( '      Max.      : '+str(ValidPixels_array2.max())))
+      f.write( '%s\n'%( '      Std. Dev. : '+str(ValidPixels_array2.std())))
+    else:
+      f.write( '%s\n'%( '      Mean      : '+' (no valid pixels, all filler or NoData) '))
+      f.write( '%s\n'%( '      Min,      : '+' (no valid pixels, all filler or NoData) '))
+      f.write( '%s\n'%( '      Max.      : '+' (no valid pixels, all filler or NoData) '))
+      f.write( '%s\n'%( '      Std. Dev. : '+' (no valid pixels, all filler or NoData) '))
 
     # ----------------------------------------------------
     # get absolute value of differences between two arrays
     # ----------------------------------------------------
+    f.write( '%s\n' % ' ')
+    f.write( '%s\n' %('    '+NetCDF1+' ('+Var1+') ' ))
+    f.write( '%s\n' %('    '+NetCDF2+' ('+Var2+') ' ))
     Differences = np.absolute( NetCDF_array1 - NetCDF_array2 )
    
     '''
@@ -155,22 +190,131 @@ def CompareNetcdfs( NetCDF1,NetCDF2 ):
       Differences[(NetCDF_array1==NoData)]=NoData
     
     if Differences.size>1:
-      sys.stdout.write('%s\n'%('    Difference number of elements     : '+\
+      f.write('%s\n'%('      Difference number of elements     : '+\
               str(Differences[(Differences!=NoData)].size)))
-      sys.stdout.write('%s\n'%('    Difference Mean,Min.,Max.,St. dev : '+str(
+      f.write('%s\n'%('      Difference Mean,Min.,Max.,St. dev : '+str(
           Differences[(Differences!=NoData)].mean())+', '+\
                   str(Differences[(Differences!=NoData)].min())+', '+\
                   str(Differences[(Differences!=NoData)].max())+', '+\
                   str(Differences[(Differences!=NoData)].std())))
+      f.write('%s\n'%' ')
     else:
-      sys.stdout.write( '%s\n'%('    Differences number of elements  : NoData'))
-      sys.stdout.write( '%s\n'%('    Difference Mean,Min.,Max.,St. dev : NoData,NoData,NoData,NoData'))
-    sys.stdout.write('%s\n'%'   \n  ----------------------------------------------------------------------------- \n')
+      f.write( '%s\n'%('      Differences number of elements  : NoData'))
+      f.write( '%s\n'%('      Difference Mean,Min.,Max.,St. dev : NoData,NoData,NoData,NoData'))
+      f.write( '%s\n'% ' ')
 
     # --------------------------
     # increment variable counter
     # --------------------------
     VariableCounter+=1
+
+    if ToPlot:
+      
+      Dims1 = list(  NetCDF_array1.shape )
+      Dims2 = list(  NetCDF_array2.shape )
+
+      if not ( Dims1 == Dims2 ):
+        f.write(  '%s\n' % '   \n   *WARNING: variables '+Var1.upper()+' does not have same dimensions for NetCDFs. Unable to plot.\n')
+      else:
+
+        # ----------------------------------------
+        # output names to contain comparison plots
+        # ----------------------------------------
+        OutName1 = os.path.join( OutputDir,
+          os.path.basename(NetCDF1).replace('.nc','')+'_'+Var1.upper()+'._1.png' )
+        OutName2 = os.path.join( OutputDir,
+          os.path.basename(NetCDF2).replace('.nc','')+'_'+Var2.upper()+'._2.png' )
+        OutNameDiff = os.path.join( OutputDir,
+          os.path.basename(NetCDF2).replace('.nc','')+'_'+Var1.upper()+'._DIFFERENCE.png' )
+
+        # ----------------------------------------------
+        # attempt to extract 2D dimensions from array(s)
+        # ----------------------------------------------
+        Dims=np.array(Dims1)
+        Dims=Dims[(Dims>1)]
+        if( Dims.size == 2 ): # we found some possible 2d Arrays ... horray. Let's try to plot a 2D "bird's eye view" plot
+
+          Arr1 = np.reshape( NetCDF_array1, (Dims[0],Dims[1]))
+          Arr2 = np.reshape( NetCDF_array2, (Dims[0],Dims[1]))
+          
+          # --------------------------------------------
+          # cast to "double precision" as python sees it
+          # --------------------------------------------
+          InvalidLocs = np.where( (Arr1==NoData)|(Arr2==NoData))
+          Arr1 = np.array(Arr1,dtype=np.float64)
+          Arr2 = np.array(Arr2,dtype=np.float64)
+          Diff = np.absolute( Arr1 - Arr2 )
+
+          Arr1[(Arr1==NoData)]=np.nan
+          Arr2[(Arr1==NoData)]=np.nan
+          Diff[InvalidLocs]=np.nan
+
+          matshow( Arr1 )
+          plt.title( Var1,fontsize=5 )
+          plt.colorbar()
+          plt.grid()
+          plt.savefig( OutName1,dpi=300 )
+          plt.close()
+          f.write( '%s\n' %('    *Note: '+OutName1+' created.' ))
+
+          matshow( Arr2 )
+          plt.title( Var2,fontsize=5 )
+          plt.colorbar()
+          plt.grid()
+          plt.savefig( OutName2,dpi=300 )
+          plt.close()
+          f.write( '%s\n' %('    *Note: '+OutName2+' created.' ))
+
+          matshow( Diff )
+          plt.title( Var1+' DIFFERENCE ',fontsize=5 )
+          plt.colorbar()
+          plt.grid()
+          plt.savefig( OutNameDiff,dpi=300 )
+          plt.close()
+          f.write( '%s\n' %('    *Note: '+OutNameDiff+' created.\n' ))
+        
+        elif( Dims.size == 1 ):
+
+          Arr1 = NetCDF_array1.flatten() 
+          Arr2 = NetCDF_array2.flatten() 
+
+          # --------------------------------------------
+          # cast to "double precision" as python sees it
+          # --------------------------------------------
+          Arr1 = np.array(Arr1,dtype=np.float64)
+          Arr2 = np.array(Arr2,dtype=np.float64)
+          Diff = np.absolute( Arr1 - Arr2 )
+
+          Arr1[(Arr1==NoData)]=np.nan
+          Arr2[(Arr1==NoData)]=np.nan
+          Diff[(Arr1==NoData)|(Arr2==NoData)]=np.nan
+
+          plt.title( Var1,fontsize=5 )
+          plt.plot( Arr1 ,'r' )
+          plt.grid()
+          plt.savefig( OutName1,dpi=300 )
+          plt.close()
+          f.write(  '%s\n' %('    *Note: '+OutName1+' created.' ))
+
+          plt.title( Var2,fontsize=5 )
+          plt.plot( Arr2, 'b' )
+          plt.grid()
+          plt.savefig( OutName2,dpi=300 )
+          plt.close()
+          f.write(  '%s\n' %('    *Note: '+OutName2+' created.' ))
+
+          plt.title( Var1+' DIFFERENCE ',fontsize=5 )
+          plt.plot( Diff, 'k')
+          plt.grid()
+          plt.savefig( OutNameDiff,dpi=300 )
+          plt.close()
+          f.write(  '%s\n' %('    *Note: '+OutNameDiff+' created.\n' ))
+    
+  # -----------------
+  # close stats. file
+  # -----------------
+  f.write('%s\n'%'   \n  ----------------------------------------------------------------------------- \n')
+  f.close()
 
   # --------------------------
   # close both NetCDF datasets
@@ -181,8 +325,12 @@ def CompareNetcdfs( NetCDF1,NetCDF2 ):
 def show_usage():
   print('''
     USAGE: $ python3 CompareNetcdf.py 
-      --netcdf1 <netcdf1> 
-      --netcdf2 <netcdf2>
+      --netcdf1, -n1 <netcdf1> (required)
+      --netcdf2, -n2 <netcdf2> (required)
+      --version, -v (get version info.)
+      --usage,   -u (get usage info e.g. print this message)
+      --plot,    -p (plot the pairs of variables and their differences to PNGs.
+      --outdir,  -o (specify output directory, required)
   ''')
   sys.exit(1)
 
@@ -193,7 +341,7 @@ def show_version():
       Version 1.0.0
 
       @author  : Gerasimos Michalitsianos
-      @updated : 12 March 2021
+      @updated : 10 April 2021 
       @contact : gerasimosmichalitsianos@gmail.com
     \n
   ''')
@@ -206,6 +354,10 @@ def main():
   # ---------------------
   netcdf1=''
   netcdf2=''
+  
+  plot=None
+  outDir=None
+
   parser = argparse.ArgumentParser( description='python3 NetCDF comparison tool.' )
   parser.add_argument( '-n1','--netcdf1',required=False,type=str,
     dest='netcdf1',help='first netcdf file')
@@ -215,12 +367,18 @@ def main():
     dest='version',help='show version.',action='store_true')
   parser.add_argument('-u','--usage',required=False,
     dest='showhelp',action='store_true',help='show help message.')
+  parser.add_argument('-p','--plot',required=False,
+    dest='createPlot',help='create plots.',action='store_true')
+  parser.add_argument( '-o','--outdir',required=True,type=str,
+    dest='outDir',help='output directory (optional)')
   args = parser.parse_args()
 
   version  = args.version
   showHelp = args.showhelp
   netcdf1  = args.netcdf1
   netcdf2  = args.netcdf2
+  plot     = args.createPlot
+  outDir   = args.outDir
 
   # -----------------------
   # show version if desired 
@@ -234,6 +392,21 @@ def main():
   if showHelp:
     show_usage()
 
+  # ---------------------------------------------
+  # make sure user passed-in an output directory.
+  # ---------------------------------------------
+  if outDir is None:
+    print( '  \n Pass in output directory with -o or --outdir flag.' )
+    show_usage()
+
+  # ------------------------------------------
+  # check to see if user passed-in "plot" flag 
+  # ------------------------------------------
+  if plot is not None:
+    plot=True
+  else:
+    plot=False
+
   # ------------------------------------------
   # make sure both netcdf files were passed-in
   # via the command-line
@@ -242,6 +415,25 @@ def main():
     print( '  \n Please pass in two netcdf files.' )
     print( '    Use the --netcdf1 (-n1) and --netcdf2 (-n2) command-line flags. Exiting ... ' )
     sys.exit(1)
+
+  # -------------------------------------------------
+  # make sure user passed the command-line arguments.
+  # -------------------------------------------------
+  if netcdf1 is None or netcdf2 is None:
+    print( '  \n Please pass-in filenames of two netcdf files to compare using --netcdf1,--netcd2 flags.')
+    show_usage()
+
+  # ----------------------------------------------
+  # check to make sure both netcdf files passed-in
+  # are indeeed existing files
+  # ----------------------------------------------
+  if not os.path.isfile( netcdf1 ):
+    print( '  \n Not an existing file: '+netcdf1+'. ')
+    sys.exit(1)
+  elif not os.path.isfile( netcdf2 ):
+    print( '  \n Not an existing file: '+netcdf2+'. ')
+    sys.exit(1)
+  else: pass
 
   # ------------------------------------------------
   # make sure both flags have appropriate extensions
@@ -253,7 +445,7 @@ def main():
     print( ' Not a NetCDF: ' , netcdf2 )
     sys.exit(1)
   else: pass
-  CompareNetcdfs( netcdf1,netcdf2 )
+  CompareNetcdfs( netcdf1,netcdf2, plot , outDir )
 
 if __name__ == '__main__':
   main()
