@@ -7,6 +7,7 @@ import matplotlib
 import matplotlib.pyplot as plt
 from netCDF4 import Dataset
 from matplotlib.pylab import *
+matplotlib.use('Agg')
 matplotlib.rcParams['agg.path.chunksize'] = 1000000
 
 # -------------------------
@@ -40,11 +41,11 @@ def CompareNetcdfs( NetCDF1,NetCDF2,ToPlot,OutDir ):
   # --------------------------
   # write out name of variable
   # --------------------------
+  os.chdir( OutputDir )
   TimeStamp = datetime.datetime.now().strftime("%Y%m%d_%H%M%S")
-  OutNameStats = os.path.join( OutputDir, 'comparison_statistics_'+TimeStamp+'.txt')
-  if os.path.isfile( OutNameStats ):
-    os.remove( OutNameStats )
-  f=open( OutNameStats,'w')
+  BaseNameStats = 'comparison_statistics_'+TimeStamp+'.txt'
+  OutNameStats = os.path.join( OutputDir,BaseNameStats )
+  f=open( OutNameStats,'w' )
 
   # -------------------------------------------
   # get common variables from both NetCDF files
@@ -253,7 +254,7 @@ def CompareNetcdfs( NetCDF1,NetCDF2,ToPlot,OutDir ):
           plt.title( Var1,fontsize=5 )
           plt.colorbar()
           plt.grid()
-          plt.savefig( OutName1,dpi=300 )
+          plt.savefig( OutName1,dpi=150 )
           plt.close()
           f.write( '%s\n' %('    *Note: '+OutName1+' created.' ))
 
@@ -261,7 +262,7 @@ def CompareNetcdfs( NetCDF1,NetCDF2,ToPlot,OutDir ):
           plt.title( Var2,fontsize=5 )
           plt.colorbar()
           plt.grid()
-          plt.savefig( OutName2,dpi=300 )
+          plt.savefig( OutName2,dpi=150 )
           plt.close()
           f.write( '%s\n' %('    *Note: '+OutName2+' created.' ))
 
@@ -269,10 +270,11 @@ def CompareNetcdfs( NetCDF1,NetCDF2,ToPlot,OutDir ):
           plt.title( Var1+' DIFFERENCE ',fontsize=5 )
           plt.colorbar()
           plt.grid()
-          plt.savefig( OutNameDiff,dpi=300 )
+          plt.savefig( OutNameDiff,dpi=150 )
           plt.close()
           f.write( '%s\n' %('    *Note: '+OutNameDiff+' created.\n' ))
-        
+          del Arr1,Arr2,Diff
+
         elif( Dims.size == 1 ):
 
           Arr1 = NetCDF_array1.flatten() 
@@ -292,24 +294,25 @@ def CompareNetcdfs( NetCDF1,NetCDF2,ToPlot,OutDir ):
           plt.title( Var1,fontsize=5 )
           plt.plot( Arr1 ,'r' )
           plt.grid()
-          plt.savefig( OutName1,dpi=300 )
+          plt.savefig( OutName1,dpi=150 )
           plt.close()
           f.write(  '%s\n' %('    *Note: '+OutName1+' created.' ))
 
           plt.title( Var2,fontsize=5 )
           plt.plot( Arr2, 'b' )
           plt.grid()
-          plt.savefig( OutName2,dpi=300 )
+          plt.savefig( OutName2,dpi=150 )
           plt.close()
           f.write(  '%s\n' %('    *Note: '+OutName2+' created.' ))
 
           plt.title( Var1+' DIFFERENCE ',fontsize=5 )
           plt.plot( Diff, 'k')
           plt.grid()
-          plt.savefig( OutNameDiff,dpi=300 )
+          plt.savefig( OutNameDiff,dpi=150 )
           plt.close()
           f.write(  '%s\n' %('    *Note: '+OutNameDiff+' created.\n' ))
-    
+          del Arr1,Arr2,Diff
+
   # -----------------
   # close stats. file
   # -----------------
