@@ -33,7 +33,7 @@
     $ cd compare_netcdf/
     $ docker build -t compare_netcdf .
      
-###### USAGE:
+###### USAGE (docker):
  
     To use this code, pass in the filenames of the two NetCDF4 files you wish to compare.
     
@@ -47,6 +47,8 @@
       --netcdf1 $DIR/20210312150000-STAR-L2P_GHRSST-SSTsubskin-AHI_H08-ACSPO_V2.71-v02.0-fv01.0.nc 
       --netcdf2 $DIR/20210312150000-STAR-L2P_GHRSST-SSTsubskin-AHI_H08-ACSPO_V2.70-v02.0-fv01.0.nc
       --outdir $DIR --plot
+
+###### USAGE (command-line):
 
     The second way is to use the Python source file directly (bin/compare_netcdf.py):
     
