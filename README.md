@@ -64,6 +64,11 @@
       (1) netCDF4 
       (2) NumPy 
       (3) Matplotlib
+      
+    They can be installed like so:
+      pip3 install numpy
+      pip3 install netCDF4 
+      pip3 install matplotlib
     
     Matplotlib is used here to create the plots.
 
