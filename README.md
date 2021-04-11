@@ -50,6 +50,7 @@
 
     The second way is to use the Python source file directly (bin/compare_netcdf.py):
     
+    $ cd bin/
     $ python3 compare_netcdf.py
       --netcdf1 $DIR/20210312150000-STAR-L2P_GHRSST-SSTsubskin-AHI_H08-ACSPO_V2.71-v02.0-fv01.0.nc 
       --netcdf2 $DIR/20210312150000-STAR-L2P_GHRSST-SSTsubskin-AHI_H08-ACSPO_V2.70-v02.0-fv01.0.nc
