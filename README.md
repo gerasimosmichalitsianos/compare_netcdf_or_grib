@@ -80,35 +80,38 @@
      
     Supports Python 2.7.x, 3.x
        
-###### Sample Output to Text File (in output directory)
+###### SAMPLE OUTPUT TO TEXT FILE
 
-    Running comparison at: 
-      2021-03-13-07:47:42
- 
-    netcdf file 1: /home/someuser/data/20210312150000-STAR-L2P_GHRSST-SSTsubskin-AHI_H08-ACSPO_V2.71-v02.0-fv01.0.nc
-    netcdf file 2: /home/someuser/data/20210312150000-STAR-L2P_GHRSST-SSTsubskin-AHI_H08-ACSPO_V2.70-v02.0-fv01.0.nc
-   
-    ----------------------------------------------------------------------------- 
 
-    1. brightness_temperature_08um6
+  Running comparison at:
+    2021-04-11-03:01:59
 
-      NetCDF1 Mean,Min.,Max.,St. dev    : 290.13742, 262.97998, 296.13998, 5.2312717
-      NetCDF2 Mean,Min.,Max.,St. dev    : 290.02698, 263.3, 296.15, 5.2306266
-      NetCDF1 number of elements        : 3690379
-      NetCDF2 number of elements        : 3556082
-      Difference number of elements     : 3690379
-      Difference Mean,Min.,Max.,St. dev : 812.9029, 0.0, 10294.75, 2775.4597
-   
-    ----------------------------------------------------------------------------- 
+  netcdf file 1: ../sample_data/20210312150000-STAR-L2P_GHRSST-SSTsubskin-AHI_H08-ACSPO_V2.70-v02.0-fv01.0.nc
+  netcdf file 2: ../sample_data/20210312150000-STAR-L2P_GHRSST-SSTsubskin-AHI_H08-ACSPO_V2.71-v02.0-fv01.0.nc
 
-    2. brightness_temperature_10um4
+  *Note: comparison plots will be created in: /home/gmichali/sample_data/
 
-      NetCDF1 Mean,Min.,Max.,St. dev    : 292.83353, 266.28, 298.91998, 5.2316866
-      NetCDF2 Mean,Min.,Max.,St. dev    : 292.7556, 266.6, 298.93, 5.228918
-      NetCDF1 number of elements        : 3690379
-      NetCDF2 number of elements        : 3556082
-      Difference number of elements     : 3690379
-      Difference Mean,Min.,Max.,St. dev : 813.1033, 0.0, 10297.26, 2776.1316
+  1. brightness_temperature_08um6
+
+    ../sample_data/20210312150000-STAR-L2P_GHRSST-SSTsubskin-AHI_H08-ACSPO_V2.70-v02.0-fv01.0.nc (brightness_temperature_08um6)
+      Mean      : 290.02698
+      Min,      : 263.3
+      Max.      : 296.15
+      Std. Dev. : 5.2306266
+    ../sample_data/20210312150000-STAR-L2P_GHRSST-SSTsubskin-AHI_H08-ACSPO_V2.71-v02.0-fv01.0.nc (brightness_temperature_08um6)
+      Mean      : 290.13742
+      Min,      : 262.97998
+      Max.      : 296.13998
+      Std. Dev. : 5.2312717
+
+    ../sample_data/20210312150000-STAR-L2P_GHRSST-SSTsubskin-AHI_H08-ACSPO_V2.70-v02.0-fv01.0.nc (brightness_temperature_08um6)
+    ../sample_data/20210312150000-STAR-L2P_GHRSST-SSTsubskin-AHI_H08-ACSPO_V2.71-v02.0-fv01.0.nc (brightness_temperature_08um6)
+      Difference number of elements     : 3556082
+      Difference Mean,Min.,Max.,St. dev : 454.91278, 0.0, 10294.86, 2114.8115
+
+    *Note: /home/user/sample_data/20210312150000-STAR-L2P_GHRSST-SSTsubskin-AHI_H08-ACSPO_V2.70-v02.0-fv01.0_BRIGHTNESS_TEMPERATURE_08UM6._1.png created.
+    *Note: /home/user/sample_data/20210312150000-STAR-L2P_GHRSST-SSTsubskin-AHI_H08-ACSPO_V2.71-v02.0-fv01.0_BRIGHTNESS_TEMPERATURE_08UM6._2.png created.
+    *Note: /home/user/sample_data/20210312150000-STAR-L2P_GHRSST-SSTsubskin-AHI_H08-ACSPO_V2.71-v02.0-fv01.0_BRIGHTNESS_TEMPERATURE_08UM6._DIFFERENCE.png created.
       
 ###### @author: 
 
