@@ -1,7 +1,7 @@
 ###### COMPARING VARIABLES BETWEEN TWO NETCDF4 FILES
     
     This is a simple Python3 command-line program that iterates through
-    the matchines variables of two NetCDF4 files, and computes some 
+    the matching variables of two NetCDF4 files, and computes some 
     basic statistics (mean, min., max., and standard deviation), writing
     those statistics to a text file. For each variable, an array of differences 
     is computed (e.g. the absolute value of the first array minus the second array), 
