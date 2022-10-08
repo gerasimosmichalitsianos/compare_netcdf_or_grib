@@ -26,4 +26,5 @@ RUN echo 'alias pip=pip3' >> ~/.bashrc
 RUN pip3 install numpy
 RUN pip3 install netCDF4 
 RUN pip3 install matplotlib
+RUN pip3 install xarray
 ENTRYPOINT [ "python3", "compare_netcdf.py" ]
