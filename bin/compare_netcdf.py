@@ -2,6 +2,7 @@ import os
 import sys
 import numpy as np
 import datetime
+import xarray
 import argparse
 import matplotlib
 import matplotlib.pyplot as plt
@@ -104,11 +105,20 @@ def CompareNetcdfs( NetCDF1,NetCDF2,ToPlot,OutDir ):
     if type( MissingValues2 ) is not list:
       MissingValues2 = [ MissingValues2 ]
 
+    #>>> ds = xarray.open_dataset( filename, engine='netcdf4' )
+    #>>> ds['Reflectance@VIIRS-I1-IMG-EDR'].values
+
     # ------------------
     # get arrays of data
     # ------------------
-    NetCDF_array1 = np.array( Dataset1[Var1][:] )
-    NetCDF_array2 = np.array( Dataset2[Var2][:] )
+    try:
+      ds1 = xarray.open_dataset( NetCDF1, engine='netcdf4' )
+      ds2 = xarray.open_dataset( NetCDF2, engine='netcdf4' )
+      NetCDF_array1 = np.array(ds1[Var1].values).astype(float)
+      NetCDF_array2 = np.array(ds2[Var2].values).astype(float)
+    except Exception as e:
+      NetCDF_array1 = Dataset1[Var1][:]
+      NetCDF_array2 = Dataset2[Var2][:] 
 
     # ------------------------------------------
     # move onto next variable if either variable
@@ -140,6 +150,9 @@ def CompareNetcdfs( NetCDF1,NetCDF2,ToPlot,OutDir ):
     # -----------------------------------------------
     ValidPixels_array1 = NetCDF_array1[( NetCDF_array1!=NoData)]
     ValidPixels_array2 = NetCDF_array2[( NetCDF_array2!=NoData)]
+    ValidPixels_array1 = ValidPixels_array1[~np.isnan(ValidPixels_array1)]
+    ValidPixels_array2 = ValidPixels_array2[~np.isnan(ValidPixels_array2)]
+
     f.write('%s\n'%('  '+str(VariableCounter)+'. '+Var1+'\n'))
 
     if( ValidPixels_array1.size>0 ):
