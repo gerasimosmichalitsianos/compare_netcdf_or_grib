@@ -204,6 +204,8 @@ def CompareNetcdfs( NetCDF1,NetCDF2,ToPlot,OutDir ):
       Differences[(NetCDF_array1==NoData)]=NoData
     
     if Differences.size>1:
+      Differences = Differences[~np.isnan(Differences)]
+
       f.write('%s\n'%('      Difference number of elements     : '+\
               str(Differences[(Differences!=NoData)].size)))
       f.write('%s\n'%('      Difference Mean,Min.,Max.,St. dev : '+str(
