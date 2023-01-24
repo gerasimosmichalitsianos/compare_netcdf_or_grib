@@ -6,6 +6,8 @@ import xarray
 import argparse
 import matplotlib
 import matplotlib.pyplot as plt
+import warnings as warn
+from PIL import Image
 from netCDF4 import Dataset
 from matplotlib.pylab import *
 matplotlib.use('Agg')
@@ -58,6 +60,7 @@ def CompareNetcdfs( NetCDF1,NetCDF2,ToPlot,OutDir ):
     sys.exit(1)
 
   # open up text file for writing pixel statistics
+  # ----------------------------------------------
   f.write('%s\n'%' ')
   f.write('%s\n'%'  Running comparison at: ')
   f.write('%s\n'%('    '+StartDate))
@@ -105,9 +108,6 @@ def CompareNetcdfs( NetCDF1,NetCDF2,ToPlot,OutDir ):
     if type( MissingValues2 ) is not list:
       MissingValues2 = [ MissingValues2 ]
 
-    #>>> ds = xarray.open_dataset( filename, engine='netcdf4' )
-    #>>> ds['Reflectance@VIIRS-I1-IMG-EDR'].values
-
     # ------------------
     # get arrays of data
     # ------------------
@@ -119,6 +119,11 @@ def CompareNetcdfs( NetCDF1,NetCDF2,ToPlot,OutDir ):
     except Exception as e:
       NetCDF_array1 = Dataset1[Var1][:]
       NetCDF_array2 = Dataset2[Var2][:] 
+    
+    # convert from masked array to regular numpy array (if necessary)
+    # ---------------------------------------------------------------
+    NetCDF_array1 = np.array(NetCDF_array1,dtype=np.float32)
+    NetCDF_array2 = np.array(NetCDF_array2,dtype=np.float32)
 
     # ------------------------------------------
     # move onto next variable if either variable
@@ -139,22 +144,29 @@ def CompareNetcdfs( NetCDF1,NetCDF2,ToPlot,OutDir ):
     # ----------------------------------------------------
     if len(MissingValues1)>0:
       for MissingValue in MissingValues1:
-        NetCDF_array1[(NetCDF_array1==MissingValue)]=NoData
+        if NetCDF_array1.size>1:
+          NetCDF_array1[(NetCDF_array1==MissingValue)]=NoData
 
     if len(MissingValues2)>0:
       for MissingValue in MissingValues2:
-        NetCDF_array2[(NetCDF_array2==MissingValue)]=NoData
+        if NetCDF_array1.size>1:
+          NetCDF_array2[(NetCDF_array2==MissingValue)]=NoData
 
     # -----------------------------------------------
     # get valid  pixel values (e.g. that are -9999.0)
     # -----------------------------------------------
-    ValidPixels_array1 = NetCDF_array1[( NetCDF_array1!=NoData)]
-    ValidPixels_array2 = NetCDF_array2[( NetCDF_array2!=NoData)]
-    ValidPixels_array1 = ValidPixels_array1[~np.isnan(ValidPixels_array1)]
-    ValidPixels_array2 = ValidPixels_array2[~np.isnan(ValidPixels_array2)]
-
+    if NetCDF_array1.size>1 and NetCDF_array2.size>1:
+      ValidPixels_array1 = NetCDF_array1[( NetCDF_array1!=NoData)]
+      ValidPixels_array2 = NetCDF_array2[( NetCDF_array2!=NoData)]
+      ValidPixels_array1 = ValidPixels_array1[~np.isnan(ValidPixels_array1)]
+      ValidPixels_array2 = ValidPixels_array2[~np.isnan(ValidPixels_array2)]
+    else:
+      ValidPixels_array1 = np.copy(NetCDF_array1)
+      ValidPixels_array2 = np.copy(NetCDF_array2)
+      ValidPixels_array1 = ValidPixels_array1[~np.isnan(ValidPixels_array1)]
+      ValidPixels_array2 = ValidPixels_array2[~np.isnan(ValidPixels_array2)]
+    
     f.write('%s\n'%('  '+str(VariableCounter)+'. '+Var1+'\n'))
-
     if( ValidPixels_array1.size>0 ):
       f.write( '    '+NetCDF1+' ('+Var1+') '+'\n' ) 
       f.write( '%s\n'%( '      Mean      : '+str(ValidPixels_array1.mean())))
@@ -237,18 +249,18 @@ def CompareNetcdfs( NetCDF1,NetCDF2,ToPlot,OutDir ):
         # output names to contain comparison plots
         # ----------------------------------------
         OutName1 = os.path.join( OutputDir,
-          os.path.basename(NetCDF1).replace('.nc','')+'_'+Var1.upper()+'._1.png' )
+          os.path.basename(NetCDF1).replace('.nc','')+'_'+Var1.upper()+'_1.png' )
         OutName2 = os.path.join( OutputDir,
-          os.path.basename(NetCDF2).replace('.nc','')+'_'+Var2.upper()+'._2.png' )
+          os.path.basename(NetCDF2).replace('.nc','')+'_'+Var2.upper()+'_2.png' )
         OutNameDiff = os.path.join( OutputDir,
-          os.path.basename(NetCDF2).replace('.nc','')+'_'+Var1.upper()+'._DIFFERENCE.png' )
+          os.path.basename(NetCDF2).replace('.nc','')+'_'+Var1.upper()+'_DIFFERENCE.png' )
 
         # ----------------------------------------------
         # attempt to extract 2D dimensions from array(s)
         # ----------------------------------------------
         Dims=np.array(Dims1)
         Dims=Dims[(Dims>1)]
-        if( Dims.size == 2 ): # we found some possible 2d Arrays ... horray. Let's try to plot a 2D "bird's eye view" plot
+        if( Dims.size == 2 ):
 
           Arr1 = np.reshape( NetCDF_array1, (Dims[0],Dims[1]))
           Arr2 = np.reshape( NetCDF_array2, (Dims[0],Dims[1]))
@@ -266,7 +278,7 @@ def CompareNetcdfs( NetCDF1,NetCDF2,ToPlot,OutDir ):
           Diff[InvalidLocs]=np.nan
 
           matshow( Arr1 )
-          plt.title( Var1,fontsize=5 )
+          plt.title( Var1,fontsize=8 )
           plt.colorbar()
           plt.grid()
           plt.savefig( OutName1,dpi=150 )
@@ -274,7 +286,7 @@ def CompareNetcdfs( NetCDF1,NetCDF2,ToPlot,OutDir ):
           f.write( '%s\n' %('    *Note: '+OutName1+' created.' ))
 
           matshow( Arr2 )
-          plt.title( Var2,fontsize=5 )
+          plt.title( Var2,fontsize=8 )
           plt.colorbar()
           plt.grid()
           plt.savefig( OutName2,dpi=150 )
@@ -282,7 +294,7 @@ def CompareNetcdfs( NetCDF1,NetCDF2,ToPlot,OutDir ):
           f.write( '%s\n' %('    *Note: '+OutName2+' created.' ))
 
           matshow( Diff )
-          plt.title( Var1+' DIFFERENCE ',fontsize=5 )
+          plt.title( Var1+' DIFFERENCE ',fontsize=8 )
           plt.colorbar()
           plt.grid()
           plt.savefig( OutNameDiff,dpi=150 )
@@ -327,6 +339,24 @@ def CompareNetcdfs( NetCDF1,NetCDF2,ToPlot,OutDir ):
           plt.close()
           f.write(  '%s\n' %('    *Note: '+OutNameDiff+' created.\n' ))
           del Arr1,Arr2,Diff
+       
+        if not False in [os.path.isfile(f) for f in [OutName1,OutName2,OutNameDiff]]:
+          # merge images into single 3-panel PNG
+          # ------------------------------------ 
+          imgs = [Image.open(i) for i in [OutName1,OutName2,OutNameDiff]]
+          widths, heights = zip(*(img.size for img in imgs))
+
+          sum_width = sum(widths)
+          max_height = max(heights)
+          new_im = Image.new('RGB',(sum_width, max_height))
+          xoffset = 0
+
+          for im in imgs:
+            new_im.paste(im, (xoffset,0))
+            xoffset += im.size[0]
+          OutNameMerged = os.path.join( OutputDir,
+            os.path.basename(NetCDF2).replace('.nc','')+'_'+Var1.upper()+'_MERGED.png' )
+          new_im.save(OutNameMerged)
 
   # -----------------
   # close stats. file
@@ -359,8 +389,8 @@ def show_version():
       Version 1.0.0
 
       @author  : Gerasimos Michalitsianos
-      @updated : 10 April 2021 
-      @contact : gerasimosmichalitsianos@gmail.com
+      @updated : 24 January 2023 
+      @contact : Lakithra@protonmail.com 
     \n
   ''')
   sys.exit(1)
@@ -463,7 +493,10 @@ def main():
     print( ' Not a NetCDF: ' , netcdf2 )
     sys.exit(1)
   else: pass
+  outDir = os.path.abspath(outDir)
   CompareNetcdfs( netcdf1,netcdf2, plot , outDir )
 
 if __name__ == '__main__':
-  main()
+  with warn.catch_warnings():
+    warn.filterwarnings("ignore",category=DeprecationWarning)
+    main()
