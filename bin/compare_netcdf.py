@@ -191,7 +191,6 @@ def CompareNetcdfs( NetCDF1,NetCDF2,ToPlot,OutDir ):
       f.write( '%s\n'%( '      Max.      : '+' (no valid pixels, all filler or NoData) '))
       f.write( '%s\n'%( '      Std. Dev. : '+' (no valid pixels, all filler or NoData) '))
 
-    # ----------------------------------------------------
     # get absolute value of differences between two arrays
     # ----------------------------------------------------
     f.write( '%s\n' % ' ')
@@ -205,7 +204,6 @@ def CompareNetcdfs( NetCDF1,NetCDF2,ToPlot,OutDir ):
     anywhere there is a NoData value in either array, this is set
     in the differences array
     '''
-    # -----------------------------------------------
     # if first netcdf array is scalar value, set 
     # it to 1 element array that is the NoData value
     # -----------------------------------------------
@@ -218,13 +216,23 @@ def CompareNetcdfs( NetCDF1,NetCDF2,ToPlot,OutDir ):
     if Differences.size>1:
       Differences = Differences[~np.isnan(Differences)]
 
-      f.write('%s\n'%('      Difference number of elements     : '+\
-              str(Differences[(Differences!=NoData)].size)))
-      f.write('%s\n'%('      Difference Mean,Min.,Max.,St. dev : '+str(
-          Differences[(Differences!=NoData)].mean())+', '+\
-                  str(Differences[(Differences!=NoData)].min())+', '+\
-                  str(Differences[(Differences!=NoData)].max())+', '+\
-                  str(Differences[(Differences!=NoData)].std())))
+      ValidDifferences = Differences[(Differences!=NoData)]
+      if ValidDifferences.size>0:
+        f.write('%s\n'%('      Difference number of elements     : '+\
+                str(Differences[(Differences!=NoData)].size)))
+        f.write('%s\n'%('      Difference Mean,Min.,Max.,St. dev : '+str(
+            Differences[(Differences!=NoData)].mean())+', '+\
+                    str(Differences[(Differences!=NoData)].min())+', '+\
+                    str(Differences[(Differences!=NoData)].max())+', '+\
+                    str(Differences[(Differences!=NoData)].std())))
+      else:
+        f.write('%s\n'%('      Difference number of elements     : '+\
+                str(Differences[(Differences!=NoData)].size)))
+        f.write('%s\n'%('      Difference Mean,Min.,Max.,St. dev : '+str(
+            NoData)+', '+\
+                    str(NoData)+', '+\
+                    str(NoData)+', '+\
+                    str(NoData)))
       f.write('%s\n'%' ')
     else:
       f.write( '%s\n'%('      Differences number of elements  : NoData'))
