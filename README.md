@@ -67,6 +67,7 @@
       (2) NumPy 
       (3) Matplotlib
       (4) xarray
+      (5) Image (PIL)
       
     They can be installed like so:
     
@@ -74,6 +75,7 @@
     $ pip3 install netCDF4 
     $ pip3 install matplotlib
     $ pip3 install xarray
+    $ pip3 install Image
     
     Matplotlib is used here to create the plots.
 
