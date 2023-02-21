@@ -54,7 +54,7 @@ def CompareNetcdfs( NetCDF1,NetCDF2,ToPlot,OutDir ):
   # get common variables from both NetCDF files
   # -------------------------------------------
   StartDate = datetime.datetime.now().strftime('%Y-%m-%d-%H:%M:%S')
-  CommonVariableKeys = list( set(VariablesNetCDF1).intersection(VariablesNetCDF2))
+  CommonVariableKeys = list(set(VariablesNetCDF1).intersection(VariablesNetCDF2))
   if len( CommonVariableKeys )<1:
     f.write( ' \n No common variables keys between NetCDF files. Exiting ... \n ')
     sys.exit(1)
@@ -71,17 +71,20 @@ def CompareNetcdfs( NetCDF1,NetCDF2,ToPlot,OutDir ):
   
   if ToPlot:
     f.write(  '  *Note: comparison plots will be created in: '+OutputDir+'\n\n' )
-
-  # set a nodata value 
   NoData = -9999.0
   VariableCounter=1
 
-  for Var1,Var2 in zip( VariablesNetCDF1,VariablesNetCDF2 ):
+  AllVariables = VariablesNetCDF1+VariablesNetCDF2
+  AllVariables = list(set(AllVariables))
+
+  for Var in AllVariables:
 
     # ------------------------------------------
     # make sure both variables are in the common 
     # variable keys list
     # ------------------------------------------
+    Var1 = Var
+    Var2 = Var
     if Var1 not in CommonVariableKeys or Var2 not in CommonVariableKeys:
       continue
 
@@ -173,6 +176,7 @@ def CompareNetcdfs( NetCDF1,NetCDF2,ToPlot,OutDir ):
       f.write( '%s\n'%( '      Min,      : '+str(ValidPixels_array1.min())))
       f.write( '%s\n'%( '      Max.      : '+str(ValidPixels_array1.max())))
       f.write( '%s\n'%( '      Std. Dev. : '+str(ValidPixels_array1.std())))
+      f.write( '%s\n'%( '      No. elements. : '+str(ValidPixels_array1.size)))
     else:
       f.write( '%s\n'%( '      Mean      : '+' (no valid pixels, all filler or NoData) '))
       f.write( '%s\n'%( '      Min,      : '+' (no valid pixels, all filler or NoData) '))
@@ -185,6 +189,7 @@ def CompareNetcdfs( NetCDF1,NetCDF2,ToPlot,OutDir ):
       f.write( '%s\n'%( '      Min,      : '+str(ValidPixels_array2.min())))
       f.write( '%s\n'%( '      Max.      : '+str(ValidPixels_array2.max())))
       f.write( '%s\n'%( '      Std. Dev. : '+str(ValidPixels_array2.std())))
+      f.write( '%s\n'%( '      No. elements. : '+str(ValidPixels_array2.size)))
     else:
       f.write( '%s\n'%( '      Mean      : '+' (no valid pixels, all filler or NoData) '))
       f.write( '%s\n'%( '      Min,      : '+' (no valid pixels, all filler or NoData) '))
@@ -227,7 +232,7 @@ def CompareNetcdfs( NetCDF1,NetCDF2,ToPlot,OutDir ):
                     str(Differences[(Differences!=NoData)].std())))
       else:
         f.write('%s\n'%('      Difference number of elements     : '+\
-                str(Differences[(Differences!=NoData)].size)))
+                str(Differences.size)))
         f.write('%s\n'%('      Difference Mean,Min.,Max.,St. dev : '+str(
             NoData)+', '+\
                     str(NoData)+', '+\
@@ -235,7 +240,7 @@ def CompareNetcdfs( NetCDF1,NetCDF2,ToPlot,OutDir ):
                     str(NoData)))
       f.write('%s\n'%' ')
     else:
-      f.write( '%s\n'%('      Differences number of elements  : NoData'))
+      f.write( '%s\n'%('      Differences number of elements  : {}'.format(str(NetCDF_array1.size))))
       f.write( '%s\n'%('      Difference Mean,Min.,Max.,St. dev : NoData,NoData,NoData,NoData'))
       f.write( '%s\n'% ' ')
 
@@ -291,7 +296,6 @@ def CompareNetcdfs( NetCDF1,NetCDF2,ToPlot,OutDir ):
           plt.grid()
           plt.savefig( OutName1,dpi=150 )
           plt.close()
-          f.write( '%s\n' %('    *Note: '+OutName1+' created.' ))
 
           matshow( Arr2 )
           plt.title( Var2,fontsize=8 )
@@ -299,7 +303,6 @@ def CompareNetcdfs( NetCDF1,NetCDF2,ToPlot,OutDir ):
           plt.grid()
           plt.savefig( OutName2,dpi=150 )
           plt.close()
-          f.write( '%s\n' %('    *Note: '+OutName2+' created.' ))
 
           matshow( Diff )
           plt.title( Var1+' DIFFERENCE ',fontsize=8 )
@@ -307,7 +310,6 @@ def CompareNetcdfs( NetCDF1,NetCDF2,ToPlot,OutDir ):
           plt.grid()
           plt.savefig( OutNameDiff,dpi=150 )
           plt.close()
-          f.write( '%s\n' %('    *Note: '+OutNameDiff+' created.\n' ))
           del Arr1,Arr2,Diff
 
         elif( Dims.size == 1 ):
@@ -331,21 +333,18 @@ def CompareNetcdfs( NetCDF1,NetCDF2,ToPlot,OutDir ):
           plt.grid()
           plt.savefig( OutName1,dpi=150 )
           plt.close()
-          f.write(  '%s\n' %('    *Note: '+OutName1+' created.' ))
 
           plt.title( Var2,fontsize=5 )
           plt.plot( Arr2, 'b' )
           plt.grid()
           plt.savefig( OutName2,dpi=150 )
           plt.close()
-          f.write(  '%s\n' %('    *Note: '+OutName2+' created.' ))
 
           plt.title( Var1+' DIFFERENCE ',fontsize=5 )
           plt.plot( Diff, 'k')
           plt.grid()
           plt.savefig( OutNameDiff,dpi=150 )
           plt.close()
-          f.write(  '%s\n' %('    *Note: '+OutNameDiff+' created.\n' ))
           del Arr1,Arr2,Diff
        
         if not False in [os.path.isfile(f) for f in [OutName1,OutName2,OutNameDiff]]:
