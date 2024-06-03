@@ -1,4 +1,5 @@
 import os
+import glob
 import sys
 import numpy as np
 import datetime
@@ -237,7 +238,7 @@ def compareNetcdfsOrGribs(netcdf_or_grib1, netcdf_or_grib2, toPlot, outDir):
     f.write( '%s\n' % ' ')
     f.write( '%s\n' %('    '+os.path.basename(netcdf_or_grib1)+' ('+var1+') ' ))
     f.write( '%s\n' %('    '+os.path.basename(netcdf_or_grib2)+' ('+var2+') ' ))
-    differences = np.absolute( netCDF_array1 - netCDF_array2 )
+    differences = np.absolute(netCDF_array1 - netCDF_array2)
    
     '''
     Below we are trying to make sure that after creating a new array
@@ -283,7 +284,7 @@ def compareNetcdfsOrGribs(netcdf_or_grib1, netcdf_or_grib2, toPlot, outDir):
     # --------------------------
     # increment variable counter
     # --------------------------
-    variableCounter+=1
+    variableCounter += 1
 
     if toPlot:
      
@@ -310,10 +311,10 @@ def compareNetcdfsOrGribs(netcdf_or_grib1, netcdf_or_grib2, toPlot, outDir):
         dims = np.array(dims1)
         dims = dims[(dims > 1)]
 
-        if( dims.size == 2 ):
+        if(dims.size == 2):
 
-          arr1 = np.reshape( netCDF_array1, (dims[0],dims[1]))
-          arr2 = np.reshape( netCDF_array2, (dims[0],dims[1]))
+          arr1 = np.reshape(netCDF_array1, (dims[0],dims[1]))
+          arr2 = np.reshape(netCDF_array2, (dims[0],dims[1]))
          
           # cast to "double precision" as python sees it
           # --------------------------------------------
@@ -359,18 +360,18 @@ def compareNetcdfsOrGribs(netcdf_or_grib1, netcdf_or_grib2, toPlot, outDir):
               arr2_1d = arr2_1d[valid_locs] 
               corr, _ = pearsonr(arr1_1d, arr2_1d)
               corr = np.around(corr, decimals = 3)
-              plt.title(var1 + ' CORRELATION ' + ' - Pearson Corr. Coef: (' + str(corr) + ')', fontsize=8)
+              plt.title(var1 + ' CORRELATION ' + ' - Pearson Corr. Coef: (' + str(corr) + ')', fontsize = 8)
             else:            
               plt.title(var1 + ' CORRELATION', fontsize=8)
 
-            plt.scatter(arr1_1d, arr2_1d, s=0.1)
+            plt.scatter(arr1_1d, arr2_1d, s = 0.1)
             plt.grid()
             plt.savefig(outName1.replace('_1.png', '_correlation.png'))
             plt.close() 
 
-          del arr1,arr2,diff
+          del arr1, arr2, diff
 
-        elif( dims.size == 1 ):
+        elif(dims.size == 1):
 
           arr1 = netCDF_array1.flatten()
           arr2 = netCDF_array2.flatten()
@@ -580,6 +581,13 @@ def main():
   else: pass
   outDir = os.path.abspath(outDir)
   compareNetcdfsOrGribs(netcdf_or_grib_1,netcdf_or_grib_2, plot , outDir)
+  
+  # clean up pngs not needed anymore
+  # --------------------------------
+  for png in glob.glob(outDir + '/*.png'):
+    if png.lower().endswith('_merged.png'):
+      continue
+    os.remove(png)
 
 if __name__ == '__main__':
   with warn.catch_warnings():
